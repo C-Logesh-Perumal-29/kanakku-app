@@ -1,6 +1,8 @@
 import { useRef, useState } from 'react'
 import { CalendarRange, Coins, Download, Sun, Trophy, Upload } from 'lucide-react'
 import { AvailableAmountDialog } from '@/components/dashboard/AvailableAmountDialog'
+import { ExpenseDeleteDialog } from '@/components/expense/ExpenseDeleteDialog'
+import { ExpenseEditDialog } from '@/components/expense/ExpenseEditDialog'
 import { RecentExpenseList } from '@/components/dashboard/RecentExpenseList'
 import { SummaryStatCard } from '@/components/dashboard/SummaryStatCard'
 import {
@@ -9,6 +11,7 @@ import {
   MonthlyTrendChart,
 } from '@/components/charts/ExpenseCharts'
 import { Button } from '@/components/ui/button'
+import type { ExpenseRecord } from '@/db/dexie'
 import { categoryLabelTamil } from '@/domain/categories'
 import { useLiveExpenses, useLiveSettings } from '@/hooks/useLiveData'
 import { downloadBackupFile, exportBackupJson, importBackupJson } from '@/services/backup'
@@ -29,6 +32,8 @@ export function DashboardPage() {
   const expenses = useLiveExpenses()
   const settings = useLiveSettings()
   const [editOpen, setEditOpen] = useState(false)
+  const [editExpenseTarget, setEditExpenseTarget] = useState<ExpenseRecord | null>(null)
+  const [deleteExpenseTarget, setDeleteExpenseTarget] = useState<ExpenseRecord | null>(null)
   const [toast, setToast] = useState<string | null>(null)
   const importRef = useRef<HTMLInputElement | null>(null)
 
@@ -171,6 +176,10 @@ export function DashboardPage() {
         items={latest}
         viewAllHref="/expenses"
         viewAllLabelTamil={ta.viewAllExpenses}
+        editLabelTamil={ta.ariaEditExpense}
+        deleteLabelTamil={ta.ariaDeleteExpense}
+        onEditExpense={(e) => setEditExpenseTarget(e)}
+        onDeleteExpense={(e) => setDeleteExpenseTarget(e)}
       />
 
       <AvailableAmountDialog
@@ -182,6 +191,21 @@ export function DashboardPage() {
         labelTamil={ta.availableAmountLabel}
         saveTamil={ta.save}
         cancelTamil={ta.cancel}
+      />
+
+      <ExpenseEditDialog
+        open={editExpenseTarget != null}
+        expense={editExpenseTarget}
+        onOpenChange={(next) => {
+          if (!next) setEditExpenseTarget(null)
+        }}
+      />
+      <ExpenseDeleteDialog
+        open={deleteExpenseTarget != null}
+        expense={deleteExpenseTarget}
+        onOpenChange={(next) => {
+          if (!next) setDeleteExpenseTarget(null)
+        }}
       />
     </div>
   )

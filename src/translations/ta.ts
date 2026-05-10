@@ -49,6 +49,19 @@ export const ta = {
   selectCategoryFirst: 'முதலில் வகையைத் தேர்ந்தெடுக்கவும்',
   invalidAmount: 'சரியான தொகையை உள்ளிடவும்',
   expenseSaved: 'செலவு சேமிக்கப்பட்டது',
+  expenseUpdated: 'செலவு புதுப்பிக்கப்பட்டது',
+  expenseDeleted: 'செலவுப் பதிவு நீக்கப்பட்டது',
+
+  editExpenseTitle: 'செலவைத் திருத்து',
+  editExpenseHint: 'தொகை அல்லது வகையில் பிழை இருந்தால் இங்கே மாற்றலாம்.',
+  editExpenseDateLabel: 'நேரம் / தேதி',
+
+  deleteExpenseTitle: 'இந்த செலவை நீக்கவா?',
+  deleteExpenseBody: 'இந்த செயலை மாற்ற முடியாது.',
+  deleteExpenseConfirm: 'நீக்கு',
+
+  ariaEditExpense: 'செலவைத் திருத்து',
+  ariaDeleteExpense: 'இந்த செலவை நீக்கு',
 
   chooseCategoryStep: 'வகையைத் தேர்ந்தெடுக்கவும்',
   chooseSubcategoryStep: 'துணை வகையைத் தேர்ந்தெடுக்கவும்',

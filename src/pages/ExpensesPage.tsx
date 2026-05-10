@@ -9,10 +9,13 @@ import {
   SearchX,
   SlidersHorizontal,
 } from 'lucide-react'
+import { ExpenseDeleteDialog } from '@/components/expense/ExpenseDeleteDialog'
+import { ExpenseEditDialog } from '@/components/expense/ExpenseEditDialog'
 import { ExpenseRow } from '@/components/expense/ExpenseRow'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import type { ExpenseRecord } from '@/db/dexie'
 import { CATEGORY_TREE, categoryLabelTamil, type CategoryKey } from '@/domain/categories'
 import { useLiveExpenses } from '@/hooks/useLiveData'
 import { ta } from '@/translations/ta'
@@ -42,6 +45,8 @@ export function ExpensesPage() {
   const [categoryKey, setCategoryKey] = useState<CategoryKey | 'all'>('all')
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState<ExpenseSort>('newest')
+  const [editTarget, setEditTarget] = useState<ExpenseRecord | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<ExpenseRecord | null>(null)
 
   const months = useMemo(() => (all ? uniqueExpenseMonthKeys(all) : []), [all])
 
@@ -218,7 +223,14 @@ export function ExpensesPage() {
               <ScrollArea className="h-[min(52dvh,420px)] touch-pan-y sm:h-[min(56dvh,480px)]">
                 <ul className="divide-y divide-border/70 px-3 py-1">
                   {filteredSorted.map((e) => (
-                    <ExpenseRow key={e.id ?? `${e.createdAt}-${e.category}`} expense={e} />
+                    <ExpenseRow
+                      key={e.id ?? `${e.createdAt}-${e.category}`}
+                      expense={e}
+                      editLabelTamil={ta.ariaEditExpense}
+                      deleteLabelTamil={ta.ariaDeleteExpense}
+                      onEdit={(row) => setEditTarget(row)}
+                      onDelete={(row) => setDeleteTarget(row)}
+                    />
                   ))}
                 </ul>
               </ScrollArea>
@@ -226,6 +238,21 @@ export function ExpensesPage() {
           </CardContent>
         </Card>
       </div>
+
+      <ExpenseEditDialog
+        open={editTarget != null}
+        expense={editTarget}
+        onOpenChange={(next) => {
+          if (!next) setEditTarget(null)
+        }}
+      />
+      <ExpenseDeleteDialog
+        open={deleteTarget != null}
+        expense={deleteTarget}
+        onOpenChange={(next) => {
+          if (!next) setDeleteTarget(null)
+        }}
+      />
     </div>
   )
 }

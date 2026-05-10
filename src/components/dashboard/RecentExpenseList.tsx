@@ -11,6 +11,10 @@ interface RecentExpenseListProps {
   items: ExpenseRecord[]
   viewAllHref?: string
   viewAllLabelTamil?: string
+  editLabelTamil?: string
+  deleteLabelTamil?: string
+  onEditExpense?: (expense: ExpenseRecord) => void
+  onDeleteExpense?: (expense: ExpenseRecord) => void
 }
 
 export function RecentExpenseList({
@@ -19,6 +23,10 @@ export function RecentExpenseList({
   items,
   viewAllHref,
   viewAllLabelTamil,
+  editLabelTamil,
+  deleteLabelTamil,
+  onEditExpense,
+  onDeleteExpense,
 }: RecentExpenseListProps) {
   return (
     <Card className="bg-[color-mix(in_srgb,var(--card)_94%,transparent)] transition-shadow duration-300 hover:shadow-lg hover:shadow-primary/10">
@@ -44,7 +52,14 @@ export function RecentExpenseList({
           <ScrollArea className="max-h-[min(320px,42svh)] touch-pan-y">
             <ul className="divide-y divide-border/70 pb-1 pr-2">
               {items.map((e) => (
-                <ExpenseRow key={e.id ?? `${e.createdAt}-${e.category}`} expense={e} />
+                <ExpenseRow
+                  key={e.id ?? `${e.createdAt}-${e.category}`}
+                  expense={e}
+                  editLabelTamil={editLabelTamil}
+                  deleteLabelTamil={deleteLabelTamil}
+                  onEdit={onEditExpense}
+                  onDelete={onDeleteExpense}
+                />
               ))}
             </ul>
           </ScrollArea>
