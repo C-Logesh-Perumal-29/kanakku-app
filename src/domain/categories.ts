@@ -28,6 +28,7 @@ export type SubcategoryKey =
   | 'hotel'
   | 'teaCoffee'
   | 'juice'
+  | 'meat'
   | 'cleaning'
   | 'lpg'
   | 'furniture'
@@ -71,6 +72,7 @@ export const CATEGORY_TREE: readonly CategoryDef[] = [
       { key: 'hotel', imageKey: 'hotel' },
       { key: 'teaCoffee', imageKey: 'tea' },
       { key: 'juice', imageKey: 'juice' },
+      { key: 'meat', imageKey: 'chicken' },
     ],
   },
   {
@@ -138,6 +140,7 @@ const SUBCATEGORY_TAMIL: Record<SubcategoryKey, string> = {
   hotel: 'ஹோட்டல்',
   teaCoffee: 'டீ / காபி',
   juice: 'ஜூஸ்',
+  meat: 'இறைச்சி',
   cleaning: 'சுத்தம் செய்தல்',
   lpg: 'எரிவாயு',
   furniture: 'மரச்சாமான்கள்',

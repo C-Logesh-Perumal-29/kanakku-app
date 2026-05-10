@@ -1,4 +1,5 @@
 import bikeService from './BikeService.webp'
+import chicken from './Chicken.webp'
 import carService from './CarService.webp'
 import cleaning from './Cleaning.webp'
 import clothing from './Clothing.webp'
@@ -38,6 +39,7 @@ export const categoryImageUrl: Record<string, string> = {
   bikeService,
   carService,
   cleaning,
+  chicken,
   clothing,
   cylinder,
   education,
