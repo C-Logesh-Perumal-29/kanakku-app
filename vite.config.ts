@@ -6,6 +6,15 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
+  preview: {
+    /** Render / Docker: honor PORT and listen on all interfaces */
+    host: true,
+    port: Number(process.env.PORT) || 4173,
+    strictPort: !!process.env.PORT,
+  },
+  server: {
+    host: true,
+  },
   plugins: [
     react(),
     tailwindcss(),
