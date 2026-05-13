@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { db } from '@/db/dexie'
+import { updateSettings } from '@/db/dexie'
 import { parseNonNegativeAmountInput } from '@/utils/currency'
 
 interface AvailableAmountDialogProps {
@@ -39,7 +39,7 @@ export function AvailableAmountDialog({
   async function handleSave(): Promise<void> {
     const n = parseNonNegativeAmountInput(raw)
     if (n == null) return
-    await db.settings.put({ id: 1, currentAvailableAmount: n })
+    await updateSettings({ currentAvailableAmount: n })
     onOpenChange(false)
   }
 

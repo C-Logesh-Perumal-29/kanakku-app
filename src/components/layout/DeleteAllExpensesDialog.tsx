@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { db } from '@/db/dexie'
+import { db, updateSettings } from '@/db/dexie'
 import { ta } from '@/translations/ta'
 import { toast } from 'sonner'
 
@@ -34,7 +34,7 @@ export function DeleteAllExpensesDialog({
       return
     }
     await db.expenses.clear()
-    await db.settings.put({ id: 1, currentAvailableAmount: 0 })
+    await updateSettings({ currentAvailableAmount: 0 })
     toast.success(ta.deleteAllExpensesSuccess, { duration: 3400 })
     setCode('')
     onOpenChange(false)

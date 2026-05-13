@@ -11,12 +11,14 @@ import {
   MonthlyTrendChart,
 } from '@/components/charts/ExpenseCharts'
 import { Button } from '@/components/ui/button'
+import { LoadingScreen } from '@/components/ui/LoadingScreen'
 import type { ExpenseRecord } from '@/db/dexie'
 import { categoryLabelTamil } from '@/domain/categories'
 import { useLiveExpenses, useLiveSettings } from '@/hooks/useLiveData'
 import { downloadBackupFile, exportBackupJson, importBackupJson } from '@/services/backup'
 import { ta } from '@/translations/ta'
 import { formatInr } from '@/utils/currency'
+import { fontScaleForLevel } from '@/utils/fontSize'
 import {
   dailyOverview,
   monthTotal,
@@ -38,24 +40,12 @@ export function DashboardPage() {
   const importRef = useRef<HTMLInputElement | null>(null)
 
   if (expenses == null || settings == null) {
-    return (
-      <div className="flex flex-col items-center justify-center gap-4 py-24">
-        <div className="relative size-14">
-          <div
-            className="absolute inset-0 animate-ping rounded-2xl bg-primary/15"
-            style={{ animationDuration: '1.8s' }}
-          />
-          <div className="relative flex size-14 items-center justify-center rounded-2xl border border-border/60 bg-card shadow-md">
-            <div className="size-7 animate-pulse rounded-xl bg-linear-to-br from-primary/30 to-primary/10" />
-          </div>
-        </div>
-        <p className="text-sm text-muted-foreground">…</p>
-      </div>
-    )
+    return <LoadingScreen />
   }
 
   const totalExpenseAllTime = sumAmount(expenses)
   const remaining = settings.currentAvailableAmount - totalExpenseAllTime
+  const fontScale = fontScaleForLevel(settings.fontSizeLevel)
 
   const top = topCategoryThisMonth(expenses)
   const topLabel = top ? categoryLabelTamil(top.key) : ta.noneYet
@@ -164,9 +154,9 @@ export function DashboardPage() {
           {ta.chartInsightsHeading}
         </h2>
         <div className="grid gap-5">
-        <CategoryPieChart titleTamil={ta.chartCategoryPie} emptyTamil={ta.noData} data={pie} />
-        <MonthlyTrendChart titleTamil={ta.chartMonthlyTrend} emptyTamil={ta.noData} data={trend} />
-        <DailySpendChart titleTamil={ta.chartDailyOverview} emptyTamil={ta.noData} data={daily} />
+        <CategoryPieChart titleTamil={ta.chartCategoryPie} emptyTamil={ta.noData} data={pie} fontScale={fontScale} />
+        <MonthlyTrendChart titleTamil={ta.chartMonthlyTrend} emptyTamil={ta.noData} data={trend} fontScale={fontScale} />
+        <DailySpendChart titleTamil={ta.chartDailyOverview} emptyTamil={ta.noData} data={daily} fontScale={fontScale} />
         </div>
       </section>
 

@@ -1,10 +1,13 @@
 import { useState } from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { ArrowLeft, LayoutList, Plus, TriangleAlert } from 'lucide-react'
+import { ArrowLeft, LayoutList, Plus, TriangleAlert, Type } from 'lucide-react'
+import { FontSizeDialog } from '@/components/layout/FontSizeDialog'
 import { Button } from '@/components/ui/button'
 import { DeleteAllExpensesDialog } from '@/components/layout/DeleteAllExpensesDialog'
+import { useLiveSettings } from '@/hooks/useLiveData'
 import { cn } from '@/lib/utils'
 import { ta } from '@/translations/ta'
+import { normalizeFontSizeLevel } from '@/utils/fontSize'
 
 /** Must match favicon + PWA icons: replace `public/icon.png` only. */
 const APP_ICON_SRC = '/icon.png'
@@ -23,6 +26,8 @@ export function AppLayout({
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const [deleteAllOpen, setDeleteAllOpen] = useState(false)
+  const [fontSizeOpen, setFontSizeOpen] = useState(false)
+  const settings = useLiveSettings()
   const isHome = pathname === '/'
   const showFab = isHome
   const routeSubtitle =
@@ -78,8 +83,21 @@ export function AppLayout({
             <p className="text-[0.8125rem] leading-snug text-muted-foreground">{routeSubtitle}</p>
           </div>
 
-          {isHome ? (
-            <div className="flex shrink-0 items-center gap-0.5">
+          <div className="flex shrink-0 items-center gap-0.5">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="size-11 rounded-2xl text-primary hover:bg-primary/10 hover:text-primary"
+              aria-label={ta.ariaFontSize}
+              title={ta.ariaFontSize}
+              onClick={() => setFontSizeOpen(true)}
+            >
+              <Type className="size-[1.3rem]" aria-hidden />
+            </Button>
+
+            {isHome ? (
+              <>
               <Link
                 to="/expenses"
                 className={cn(
@@ -102,12 +120,18 @@ export function AppLayout({
               >
                 <TriangleAlert className="size-[1.35rem]" aria-hidden strokeWidth={2.25} />
               </Button>
-            </div>
-          ) : null}
+              </>
+            ) : null}
+          </div>
         </div>
       </header>
 
       <DeleteAllExpensesDialog open={deleteAllOpen} onOpenChange={setDeleteAllOpen} />
+      <FontSizeDialog
+        open={fontSizeOpen}
+        onOpenChange={setFontSizeOpen}
+        currentLevel={normalizeFontSizeLevel(settings?.fontSizeLevel)}
+      />
 
       <main
         className={cn(

@@ -44,7 +44,7 @@ const CURSOR_FILL = '#f3d5ea'
 const BAR_RADIUS_TOP: [number, number, number, number] = [12, 12, 0, 0]
 
 const legendChipStyle =
-  '[&_.recharts-legend-wrapper]:outline-none [&_li]:!inline-flex [&_li]:!items-center [&_li]:!gap-2 [&_.recharts-legend-item-text]:!text-[11px] [&_.recharts-legend-item-text]:!leading-snug [&_.recharts-legend-item-text]:!text-muted-foreground'
+  '[&_.recharts-legend-wrapper]:outline-none [&_li]:!inline-flex [&_li]:!items-center [&_li]:!gap-2 [&_.recharts-legend-item-text]:!text-[0.6875rem] [&_.recharts-legend-item-text]:!leading-snug [&_.recharts-legend-item-text]:!text-muted-foreground'
 
 function ChartShell({
   titleTamil,
@@ -98,7 +98,7 @@ function PieLegendWithAmounts({ data }: PieLegendWithAmountsProps) {
       {data.map((d) => (
         <li
           key={d.id}
-          className="flex min-w-0 items-baseline justify-between gap-2 rounded-xl bg-muted/15 px-2.5 py-1.5 text-[11px] leading-snug"
+          className="flex min-w-0 items-baseline justify-between gap-2 rounded-xl bg-muted/15 px-2.5 py-1.5 text-[0.6875rem] leading-snug"
         >
           <span className="flex min-w-0 items-center gap-2">
             <span
@@ -124,7 +124,7 @@ function BarSeriesLegendTamil({
   labelTamil: string
 }) {
   return (
-    <div className="mt-2 flex items-center justify-center gap-2 text-[11px] font-semibold tracking-wide text-muted-foreground">
+    <div className="mt-2 flex items-center justify-center gap-2 text-[0.6875rem] font-semibold tracking-wide text-muted-foreground">
       <span
         className="inline-block size-3 shrink-0 rounded-[3px] ring-1 ring-black/[0.06]"
         style={{ background: dotColor }}
@@ -139,10 +139,12 @@ export function CategoryPieChart({
   titleTamil,
   emptyTamil,
   data,
+  fontScale = 1,
 }: {
   titleTamil: string
   emptyTamil: string
   data: PieDatum[]
+  fontScale?: number
 }) {
   const sum = data.reduce((s, d) => s + d.value, 0)
 
@@ -193,7 +195,11 @@ export function CategoryPieChart({
               className="pointer-events-none absolute left-1/2 top-1/2 w-[85%] max-w-[9.5rem] -translate-x-1/2 -translate-y-1/2 text-center"
               aria-hidden
             >
-              <p className="text-[11px] font-medium leading-tight text-[#6a5564]" lang="ta">
+              <p
+                className="font-medium leading-tight text-[#6a5564]"
+                style={{ fontSize: `${11 * fontScale}px` }}
+                lang="ta"
+              >
                 {ta.chartDonutCenterCaption}
               </p>
               <p className="mt-1 text-[1.0625rem] font-bold tabular-nums leading-none text-[#352830]" lang="ta">
@@ -217,10 +223,12 @@ export function MonthlyTrendChart({
   titleTamil,
   emptyTamil,
   data,
+  fontScale = 1,
 }: {
   titleTamil: string
   emptyTamil: string
   data: MonthlyBucket[]
+  fontScale?: number
 }) {
   const hasSpend = data.some((d) => d.total > 0)
   const chartData = data.map((d) => ({
@@ -241,7 +249,7 @@ export function MonthlyTrendChart({
                 <CartesianGrid strokeDasharray="4 10" stroke={GRID} strokeOpacity={0.88} vertical={false} />
                 <XAxis
                   dataKey="short"
-                  tick={{ fill: tickColor, fontSize: 11 }}
+                  tick={{ fill: tickColor, fontSize: 11 * fontScale }}
                   interval={0}
                   tickMargin={10}
                   height={52}
@@ -252,7 +260,7 @@ export function MonthlyTrendChart({
                 />
                 <YAxis
                   tickFormatter={(v: number | string) => formatInrAxisShort(Number(v))}
-                  tick={{ fill: tickColor, fontSize: 11 }}
+                  tick={{ fill: tickColor, fontSize: 11 * fontScale }}
                   width={44}
                   stroke="transparent"
                   domain={[0, Math.max(Math.ceil(maxSpend * 1.08), 1)]}
@@ -291,10 +299,12 @@ export function DailySpendChart({
   titleTamil,
   emptyTamil,
   data,
+  fontScale = 1,
 }: {
   titleTamil: string
   emptyTamil: string
   data: DailyBucket[]
+  fontScale?: number
 }) {
   const hasSpend = data.some((d) => d.total > 0)
   const maxSpend = data.reduce((m, d) => Math.max(m, d.total), 0)
@@ -312,14 +322,14 @@ export function DailySpendChart({
                 <CartesianGrid strokeDasharray="4 10" stroke={GRID} strokeOpacity={0.88} vertical={false} />
                 <XAxis
                   dataKey="labelTamil"
-                  tick={{ fill: tickColor, fontSize: 12 }}
+                  tick={{ fill: tickColor, fontSize: 12 * fontScale }}
                   tickMargin={6}
                   stroke={tickColor}
                   strokeOpacity={0.35}
                 />
                 <YAxis
                   tickFormatter={(v: number | string) => formatInrAxisShort(Number(v))}
-                  tick={{ fill: tickColor, fontSize: 11 }}
+                  tick={{ fill: tickColor, fontSize: 11 * fontScale }}
                   width={44}
                   stroke="transparent"
                   domain={[0, Math.max(Math.ceil(maxSpend * 1.08), 1)]}

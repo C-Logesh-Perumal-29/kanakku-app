@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { LoadingScreen } from '@/components/ui/LoadingScreen'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import type { ExpenseRecord } from '@/db/dexie'
 import { CATEGORY_TREE, categoryLabelTamil, type CategoryKey } from '@/domain/categories'
@@ -76,12 +77,7 @@ export function ExpensesPage() {
   )
 
   if (all == null) {
-    return (
-      <div className="flex flex-col items-center justify-center gap-3 py-24">
-        <div className="size-12 animate-pulse rounded-2xl bg-primary/15" />
-        <p className="text-sm text-muted-foreground">…</p>
-      </div>
-    )
+    return <LoadingScreen />
   }
 
   const expenses = all

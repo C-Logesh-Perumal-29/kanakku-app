@@ -1,4 +1,5 @@
-import { db, type ExpenseRecord, type SettingsRecord } from '@/db/dexie'
+import { db, resolveSettingsRecord, type ExpenseRecord, type SettingsRecord } from '@/db/dexie'
+import { normalizeFontSizeLevel } from '@/utils/fontSize'
 import { getCategoryDefinition, type CategoryKey } from '@/domain/categories'
 
 const BACKUP_VERSION = 1 as const
@@ -77,7 +78,13 @@ export async function importBackupJson(text: string): Promise<void> {
         Number.isFinite(s.currentAvailableAmount) &&
         s.currentAvailableAmount >= 0
       ) {
-        await db.settings.put({ id: 1, currentAvailableAmount: s.currentAvailableAmount })
+        const current = await db.settings.get(1)
+        await db.settings.put(
+          resolveSettingsRecord(current, {
+            currentAvailableAmount: s.currentAvailableAmount,
+            fontSizeLevel: normalizeFontSizeLevel(s.fontSizeLevel),
+          }),
+        )
       }
     }
   })
