@@ -5,7 +5,7 @@ import {
   type CategoryKey,
   getCategoryDefinition,
 } from '@/domain/categories'
-import { localMonthKey } from '@/utils/dates'
+import { localDayKey, localMonthKey } from '@/utils/dates'
 import { isKnownCategory } from '@/utils/expenseStats'
 
 const TA_MONTHS = [
@@ -37,10 +37,29 @@ export function uniqueExpenseMonthKeys(expenses: ExpenseRecord[]): string[] {
   return [...s].sort().reverse()
 }
 
+export function uniqueExpenseDayKeys(expenses: ExpenseRecord[]): string[] {
+  const s = new Set<string>()
+  for (const e of expenses) {
+    s.add(localDayKey(e.createdAt))
+  }
+  return [...s].sort().reverse()
+}
+
+export function tamilDayLabelFromKey(dayKey: string): string {
+  const [y, m, d] = dayKey.split('-').map(Number)
+  const dt = new Date(y ?? 0, (m ?? 1) - 1, d ?? 1)
+  return dt.toLocaleDateString('ta-IN', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
+}
+
 export type ExpenseSort = 'newest' | 'oldest' | 'amount_high' | 'amount_low'
 
 export interface ExpenseFilterState {
   monthKey: string | 'all'
+  dayKey: string | 'all'
   categoryKey: CategoryKey | 'all'
   search: string
   sort: ExpenseSort
@@ -55,6 +74,10 @@ export function filterExpenses(
 
   if (f.monthKey !== 'all') {
     rows = rows.filter((e) => localMonthKey(e.createdAt) === f.monthKey)
+  }
+
+  if (f.dayKey !== 'all') {
+    rows = rows.filter((e) => localDayKey(e.createdAt) === f.dayKey)
   }
 
   if (f.categoryKey !== 'all') {

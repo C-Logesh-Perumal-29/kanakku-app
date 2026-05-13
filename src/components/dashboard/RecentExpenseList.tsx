@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom'
 import { ChevronRight, ListTree } from 'lucide-react'
 import { ExpenseRow } from '@/components/expense/ExpenseRow'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import type { ExpenseRecord } from '@/db/dexie'
 
 interface RecentExpenseListProps {
@@ -49,8 +48,8 @@ export function RecentExpenseList({
         {items.length === 0 ? (
           <p className="py-6 text-center text-sm text-muted-foreground">{emptyTamil}</p>
         ) : (
-          <ScrollArea className="max-h-[min(320px,42svh)] touch-pan-y">
-            <ul className="divide-y divide-border/70 pb-1 pr-2">
+          <div className="max-h-[min(320px,42svh)] overflow-y-auto overscroll-contain pr-2 touch-pan-y">
+            <ul className="divide-y divide-border/70 pb-1">
               {items.map((e) => (
                 <ExpenseRow
                   key={e.id ?? `${e.createdAt}-${e.category}`}
@@ -62,7 +61,7 @@ export function RecentExpenseList({
                 />
               ))}
             </ul>
-          </ScrollArea>
+          </div>
         )}
       </CardContent>
     </Card>

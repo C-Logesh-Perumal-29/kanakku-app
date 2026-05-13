@@ -40,9 +40,14 @@ export function ExpenseRow({
 
   const id = expense.id
   const showActions = id != null && (onEdit != null || onDelete != null)
+  const rowCols = showActions
+    ? 'grid-cols-[minmax(0,1fr)_4.5rem_6.75rem] sm:grid-cols-[minmax(0,1fr)_5rem_7.25rem]'
+    : 'grid-cols-[minmax(0,1fr)_1rem_6.75rem] sm:grid-cols-[minmax(0,1fr)_1rem_7.25rem]'
 
   return (
-    <li className="group flex gap-2 rounded-2xl py-3 pl-1 pr-1 transition-colors duration-200 hover:bg-primary/[0.06] sm:gap-3">
+    <li
+      className={`group grid items-center gap-x-2 rounded-2xl py-3 pl-1 pr-1 transition-colors duration-200 hover:bg-primary/[0.06] sm:gap-x-3 ${rowCols}`}
+    >
       <div className="min-w-0 flex-1">
         <p className="text-[0.95rem] font-semibold leading-snug break-words text-foreground">{label}</p>
         <p className="text-xs text-muted-foreground">{timeTamil(expense.createdAt)}</p>
@@ -50,54 +55,50 @@ export function ExpenseRow({
           <p className="mt-1 text-xs text-muted-foreground leading-snug break-words">{expense.description}</p>
         ) : null}
       </div>
-      <div className="flex shrink-0 flex-col items-end gap-2 sm:flex-row sm:items-center sm:gap-1.5">
-        {showActions ? (
-          <div className="flex shrink-0 items-center gap-0.5">
-            {onEdit != null ? (
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                className="text-muted-foreground hover:text-primary"
-                aria-label={editLabelTamil}
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  onEdit(expense)
-                }}
-              >
-                <Pencil className="size-4" aria-hidden />
-              </Button>
-            ) : null}
-            {onDelete != null ? (
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                className="text-muted-foreground hover:text-destructive"
-                aria-label={deleteLabelTamil}
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  onDelete(expense)
-                }}
-              >
-                <Trash2 className="size-4" aria-hidden />
-              </Button>
-            ) : null}
-          </div>
+      <div className="flex min-h-7 items-center justify-end gap-0.5">
+        {showActions && onEdit != null ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            className="text-muted-foreground hover:text-primary"
+            aria-label={editLabelTamil}
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              onEdit(expense)
+            }}
+          >
+            <Pencil className="size-4" aria-hidden />
+          </Button>
         ) : null}
-        <div className="flex items-center gap-1.5">
-          <p className="rounded-xl bg-primary/12 px-2.5 py-1.5 text-[0.95rem] font-bold tabular-nums text-primary">
-            {formatInr(expense.amount)}
-          </p>
-          {!showActions ? (
-            <ChevronRight
-              className="size-4 shrink-0 text-muted-foreground/35 transition-opacity group-hover:text-muted-foreground/60"
-              aria-hidden
-            />
-          ) : null}
-        </div>
+        {showActions && onDelete != null ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            className="text-muted-foreground hover:text-destructive"
+            aria-label={deleteLabelTamil}
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              onDelete(expense)
+            }}
+          >
+            <Trash2 className="size-4" aria-hidden />
+          </Button>
+        ) : null}
+      </div>
+      <div className="flex items-center justify-end gap-1.5">
+        <p className="w-full rounded-xl bg-primary/12 px-2.5 py-1.5 text-center text-[0.95rem] font-bold tabular-nums text-primary">
+          {formatInr(expense.amount)}
+        </p>
+        {!showActions ? (
+          <ChevronRight
+            className="size-4 shrink-0 text-muted-foreground/35 transition-opacity group-hover:text-muted-foreground/60"
+            aria-hidden
+          />
+        ) : null}
       </div>
     </li>
   )

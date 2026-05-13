@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import {
   ArrowDownWideNarrow,
   CalendarDays,
+  ChevronDown,
   LayoutGrid,
   List,
   Receipt,
@@ -12,21 +13,23 @@ import {
 import { ExpenseDeleteDialog } from '@/components/expense/ExpenseDeleteDialog'
 import { ExpenseEditDialog } from '@/components/expense/ExpenseEditDialog'
 import { ExpenseRow } from '@/components/expense/ExpenseRow'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import type { ExpenseRecord } from '@/db/dexie'
 import { CATEGORY_TREE, categoryLabelTamil, type CategoryKey } from '@/domain/categories'
 import { useLiveExpenses } from '@/hooks/useLiveData'
+import { toast } from 'sonner'
 import { ta } from '@/translations/ta'
 import { formatInr } from '@/utils/currency'
+import { localDayKey } from '@/utils/dates'
 import {
   type ExpenseSort,
   filterExpenses,
   insightsForFiltered,
   sortExpenses,
-  tamilMonthLabelFromKey,
-  uniqueExpenseMonthKeys,
 } from '@/utils/expenseFiltering'
 
 const SORT_OPTIONS: { value: ExpenseSort; label: string }[] = [
@@ -38,23 +41,33 @@ const SORT_OPTIONS: { value: ExpenseSort; label: string }[] = [
 
 const selectCls =
   'mt-1.5 flex h-12 w-full min-w-0 rounded-2xl border border-input bg-[color-mix(in_srgb,var(--background)_55%,var(--card)_45%)] px-3 py-2 text-base font-medium text-foreground shadow-inner shadow-black/[0.03] transition-colors focus-visible:border-primary/40 focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:outline-none disabled:opacity-60'
+const controlCls = `${selectCls} mt-0`
+const fieldCls = 'space-y-1.5'
+const labelRowCls = 'flex min-h-6 items-center justify-between gap-2'
+const labelTextCls = 'inline-flex items-center gap-2'
+const labelIconCls = 'flex size-4 shrink-0 items-center justify-center text-muted-foreground'
+const selectControlCls = `${controlCls} appearance-none pr-11`
+const dateControlCls = `${controlCls} date-picker-control appearance-none pr-11`
+const trailingIconCls =
+  'pointer-events-none absolute inset-y-0 right-0 flex w-11 items-center justify-center text-muted-foreground/80'
+const dateTriggerBtnCls =
+  'absolute inset-y-1 right-1 flex w-9 items-center justify-center rounded-xl text-muted-foreground/80 transition-colors hover:bg-primary/8 hover:text-primary focus-visible:border-primary/40 focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:outline-none'
 
 export function ExpensesPage() {
   const all = useLiveExpenses()
-  const [monthKey, setMonthKey] = useState<string | 'all'>('all')
+  const dayInputRef = useRef<HTMLInputElement | null>(null)
+  const [dayKey, setDayKey] = useState<string | 'all'>('all')
   const [categoryKey, setCategoryKey] = useState<CategoryKey | 'all'>('all')
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState<ExpenseSort>('newest')
   const [editTarget, setEditTarget] = useState<ExpenseRecord | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<ExpenseRecord | null>(null)
 
-  const months = useMemo(() => (all ? uniqueExpenseMonthKeys(all) : []), [all])
-
   const filteredSorted = useMemo(() => {
     if (!all) return []
-    const f = filterExpenses(all, { monthKey, categoryKey, search })
+    const f = filterExpenses(all, { monthKey: 'all', dayKey, categoryKey, search })
     return sortExpenses(f, sort)
-  }, [all, monthKey, categoryKey, search, sort])
+  }, [all, dayKey, categoryKey, search, sort])
 
   const insights = useMemo(
     () =>
@@ -69,6 +82,33 @@ export function ExpensesPage() {
         <p className="text-sm text-muted-foreground">…</p>
       </div>
     )
+  }
+
+  const expenses = all
+
+  function handleDayChange(raw: string): void {
+    const nextDayKey = raw || 'all'
+    setDayKey(nextDayKey)
+
+    if (raw) {
+      if (!expenses.some((e) => localDayKey(e.createdAt) === raw)) {
+        toast(ta.noExpensesSelectedDay, {
+          duration: 3400,
+          description: ta.noExpensesSelectedDayHint,
+          icon: (
+            <span className="flex size-8 items-center justify-center rounded-2xl bg-primary/12 text-primary">
+              <CalendarDays className="size-4" aria-hidden />
+            </span>
+          ),
+          classNames: {
+            toast:
+              '!rounded-3xl !border !border-primary/18 !bg-[linear-gradient(135deg,color-mix(in_srgb,var(--card)_94%,white_6%),color-mix(in_srgb,var(--palette-soft)_56%,white_44%))] !p-4 !shadow-[0_14px_40px_rgba(214,95,164,0.18)]',
+            title: '!text-[0.95rem] !font-semibold !text-foreground',
+            description: '!text-sm !leading-relaxed !text-muted-foreground',
+          },
+        })
+      }
+    }
   }
 
   return (
@@ -94,81 +134,129 @@ export function ExpensesPage() {
             {ta.filtersCardTitle}
           </CardTitle>
         </CardHeader>
-        <CardContent className="grid gap-3 sm:grid-cols-2">
-          <div>
-            <Label htmlFor="f-month" className="inline-flex items-center gap-1.5">
-              <CalendarDays className="size-3.5 text-muted-foreground" aria-hidden />
-              {ta.filterMonth}
-            </Label>
-            <select
-              id="f-month"
-              className={selectCls}
-              value={monthKey}
-              onChange={(e) => setMonthKey(e.target.value === 'all' ? 'all' : e.target.value)}
-            >
-              <option value="all">{ta.filterAllMonths}</option>
-              {months.map((mk) => (
-                <option key={mk} value={mk}>
-                  {tamilMonthLabelFromKey(mk)}
-                </option>
-              ))}
-            </select>
+        <CardContent className="grid items-start gap-4 sm:grid-cols-2">
+          <div className={fieldCls}>
+            <div className={labelRowCls}>
+              <Label htmlFor="f-day" className={labelTextCls}>
+                <span className={labelIconCls} aria-hidden>
+                  <CalendarDays className="size-3.5" />
+                </span>
+                {ta.filterDate}
+              </Label>
+              {dayKey !== 'all' ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="xs"
+                  className="text-primary hover:bg-primary/8 hover:text-primary"
+                  onClick={() => handleDayChange('')}
+                >
+                  {ta.clear}
+                </Button>
+              ) : (
+                <span className="h-6" aria-hidden />
+              )}
+            </div>
+            <div className="relative">
+              <input
+                ref={dayInputRef}
+                id="f-day"
+                type="date"
+                className={dateControlCls}
+                value={dayKey === 'all' ? '' : dayKey}
+                onChange={(e) => handleDayChange(e.target.value)}
+              />
+              <button
+                type="button"
+                className={dateTriggerBtnCls}
+                aria-label={ta.filterDate}
+                onClick={() => {
+                  dayInputRef.current?.showPicker?.()
+                  dayInputRef.current?.focus()
+                }}
+              >
+                <CalendarDays className="size-4" aria-hidden />
+              </button>
+            </div>
           </div>
-          <div>
-            <Label htmlFor="f-cat" className="inline-flex items-center gap-1.5">
-              <LayoutGrid className="size-3.5 text-muted-foreground" aria-hidden />
-              {ta.filterCategory}
-            </Label>
-            <select
-              id="f-cat"
-              className={selectCls}
-              value={categoryKey}
-              onChange={(e) =>
-                setCategoryKey(e.target.value === 'all' ? 'all' : (e.target.value as CategoryKey))
-              }
-            >
-              <option value="all">{ta.filterAllCategories}</option>
-              {CATEGORY_TREE.map((c) => (
-                <option key={c.key} value={c.key}>
-                  {categoryLabelTamil(c.key)}
-                </option>
-              ))}
-            </select>
+          <div className={fieldCls}>
+            <div className={labelRowCls}>
+              <Label htmlFor="f-cat" className={labelTextCls}>
+                <span className={labelIconCls} aria-hidden>
+                  <LayoutGrid className="size-3.5" />
+                </span>
+                {ta.filterCategory}
+              </Label>
+              <span className="h-6" aria-hidden />
+            </div>
+            <div className="relative">
+              <select
+                id="f-cat"
+                className={selectControlCls}
+                value={categoryKey}
+                onChange={(e) =>
+                  setCategoryKey(e.target.value === 'all' ? 'all' : (e.target.value as CategoryKey))
+                }
+              >
+                <option value="all">{ta.filterAllCategories}</option>
+                {CATEGORY_TREE.map((c) => (
+                  <option key={c.key} value={c.key}>
+                    {categoryLabelTamil(c.key)}
+                  </option>
+                ))}
+              </select>
+              <span className={trailingIconCls} aria-hidden>
+                <ChevronDown className="size-4" />
+              </span>
+            </div>
           </div>
-          <div className="sm:col-span-2">
-            <Label htmlFor="f-q" className="inline-flex items-center gap-1.5">
-              <Search className="size-3.5 text-muted-foreground" aria-hidden />
-              {ta.searchPlaceholder}
-            </Label>
-            <input
+          <div className={`${fieldCls} sm:col-span-2`}>
+            <div className={labelRowCls}>
+              <Label htmlFor="f-q" className={labelTextCls}>
+                <span className={labelIconCls} aria-hidden>
+                  <Search className="size-3.5" />
+                </span>
+                {ta.searchPlaceholder}
+              </Label>
+            </div>
+            <Input
               id="f-q"
               type="search"
               enterKeyHint="search"
               placeholder={ta.searchPlaceholder}
-              className={selectCls}
+              className={controlCls}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               autoCapitalize="none"
               autoCorrect="off"
             />
           </div>
-          <div className="sm:col-span-2">
-            <Label htmlFor="f-sort" className="inline-flex items-center gap-1.5">
-              <ArrowDownWideNarrow className="size-3.5 text-muted-foreground" aria-hidden />
-              {ta.filterSort}
-            </Label>
-            <select
-              id="f-sort"
-              className={selectCls}
-              value={sort}
-              onChange={(e) => setSort(e.target.value as ExpenseSort)}
-            >
-              {SORT_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
+          <div className={`${fieldCls} sm:col-span-2`}>
+            <div className={labelRowCls}>
+              <Label htmlFor="f-sort" className={labelTextCls}>
+                <span className={labelIconCls} aria-hidden>
+                  <ArrowDownWideNarrow className="size-3.5" />
+                </span>
+                {ta.filterSort}
+              </Label>
+            </div>
+            <div className="relative">
+              <select
+                id="f-sort"
+                className={selectControlCls}
+                value={sort}
+                onChange={(e) => setSort(e.target.value as ExpenseSort)}
+              >
+                {SORT_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+              <span className={trailingIconCls} aria-hidden>
+                <ChevronDown className="size-4" />
+              </span>
+            </div>
           </div>
         </CardContent>
       </Card>
