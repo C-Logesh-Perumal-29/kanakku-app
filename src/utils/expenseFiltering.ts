@@ -65,6 +65,18 @@ export interface ExpenseFilterState {
   sort: ExpenseSort
 }
 
+export function filterExpensesByDateRange(
+  expenses: ExpenseRecord[],
+  startDayKey: string,
+  endDayKey: string,
+): ExpenseRecord[] {
+  if (startDayKey > endDayKey) return []
+  return expenses.filter((e) => {
+    const dk = localDayKey(e.createdAt)
+    return dk >= startDayKey && dk <= endDayKey
+  })
+}
+
 export function filterExpenses(
   expenses: ExpenseRecord[],
   f: Omit<ExpenseFilterState, 'sort'>,

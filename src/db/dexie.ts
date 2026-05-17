@@ -14,6 +14,8 @@ export interface SettingsRecord {
   id?: number
   currentAvailableAmount: number
   fontSizeLevel?: FontSizeLevel
+  /** First time this device started using கணக்கு (ms). */
+  appStartedAt?: number
 }
 
 export class KanakkuDB extends Dexie {
@@ -51,7 +53,14 @@ export async function updateSettings(patch: Partial<SettingsRecord>): Promise<vo
 
 export async function ensureDefaultSettings(): Promise<void> {
   const row = await db.settings.get(1)
-  if (!row || row.fontSizeLevel == null) {
-    await db.settings.put(resolveSettingsRecord(row, { fontSizeLevel: row?.fontSizeLevel ?? DEFAULT_FONT_SIZE_LEVEL }))
+  const needsWrite =
+    !row || row.fontSizeLevel == null || row.appStartedAt == null
+  if (needsWrite) {
+    await db.settings.put(
+      resolveSettingsRecord(row, {
+        fontSizeLevel: row?.fontSizeLevel ?? DEFAULT_FONT_SIZE_LEVEL,
+        appStartedAt: row?.appStartedAt ?? Date.now(),
+      }),
+    )
   }
 }

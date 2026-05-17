@@ -3,6 +3,7 @@ import {
   ArrowDownWideNarrow,
   CalendarDays,
   ChevronDown,
+  FileDown,
   LayoutGrid,
   List,
   Receipt,
@@ -10,6 +11,7 @@ import {
   SearchX,
   SlidersHorizontal,
 } from 'lucide-react'
+import { ExpenseStatementDialog } from '@/components/expense/ExpenseStatementDialog'
 import { ExpenseDeleteDialog } from '@/components/expense/ExpenseDeleteDialog'
 import { ExpenseEditDialog } from '@/components/expense/ExpenseEditDialog'
 import { ExpenseRow } from '@/components/expense/ExpenseRow'
@@ -63,6 +65,7 @@ export function ExpensesPage() {
   const [sort, setSort] = useState<ExpenseSort>('newest')
   const [editTarget, setEditTarget] = useState<ExpenseRecord | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<ExpenseRecord | null>(null)
+  const [statementOpen, setStatementOpen] = useState(false)
 
   const filteredSorted = useMemo(() => {
     if (!all) return []
@@ -257,6 +260,30 @@ export function ExpensesPage() {
         </CardContent>
       </Card>
 
+      <Card className="border-primary/20 bg-[linear-gradient(135deg,color-mix(in_srgb,var(--card)_92%,white_8%),color-mix(in_srgb,var(--palette-soft)_35%,var(--card)_65%))]">
+        <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <p className="inline-flex items-center gap-2 text-base font-semibold text-foreground">
+              <span className="flex size-10 items-center justify-center rounded-2xl bg-primary/11 text-primary">
+                <FileDown className="size-5" aria-hidden />
+              </span>
+              {ta.statementCardTitle}
+            </p>
+            <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+              {ta.statementCardSubtitle}
+            </p>
+          </div>
+          <Button
+            type="button"
+            className="shrink-0 rounded-2xl shadow-md"
+            onClick={() => setStatementOpen(true)}
+          >
+            <FileDown className="size-4" aria-hidden />
+            {ta.statementOpenDialog}
+          </Button>
+        </CardContent>
+      </Card>
+
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         <InsightMini title={ta.insightTotalFiltered} value={formatInr(insights.total)} />
         <InsightMini title={ta.insightCount} value={`${insights.count}`} />
@@ -336,6 +363,11 @@ export function ExpensesPage() {
         onOpenChange={(next) => {
           if (!next) setDeleteTarget(null)
         }}
+      />
+      <ExpenseStatementDialog
+        open={statementOpen}
+        expenses={expenses}
+        onOpenChange={setStatementOpen}
       />
     </div>
   )

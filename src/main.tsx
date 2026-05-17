@@ -3,6 +3,9 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import 'sonner/dist/styles.css'
 import App from './App.tsx'
+import { warmStatementFonts } from '@/utils/statementFonts'
+
+warmStatementFonts()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
